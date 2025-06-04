@@ -1,0 +1,80 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Testbench do componente AlarmeAutomotivo
+entity tb_AlarmeAutomotivo is
+end tb_AlarmeAutomotivo;
+
+architecture Teste of tb_AlarmeAutomotivo is
+  -- Sinais internos para estimular entradas e monitorar saída
+  signal porta_motorista : STD_LOGIC := '0';
+  signal ignicao         : STD_LOGIC := '0';
+  signal farois          : STD_LOGIC := '0';
+  signal buzzer          : STD_LOGIC;
+begin
+  -- Instanciação da UUT (Unidade Sob Teste)
+  UUT: entity work.AlarmeAutomotivo(Combinacional)
+    port map (
+      porta_motorista => porta_motorista,
+      ignicao         => ignicao,
+      farois          => farois,
+      buzzer          => buzzer
+    );
+
+  -- Processo de estímulos de teste
+  stim_proc: process
+  begin
+    -- Cada combinação de entrada será mantida por 100 ns:
+    
+    -- 1) porta=0, ignicao=0, farois=0 -> buzzer esperado = 0 (nenhuma condição ativada)
+    porta_motorista <= '0';
+    ignicao         <= '0';
+    farois          <= '0';
+    wait for 100 ns;
+    
+    -- 2) porta=0, ignicao=0, farois=1 -> buzzer esperado = 1 (faróis acesos e ignição desligada)
+    porta_motorista <= '0';
+    ignicao         <= '0';
+    farois          <= '1';
+    wait for 100 ns;
+    
+    -- 3) porta=0, ignicao=1, farois=0 -> buzzer esperado = 0 (ignição ligada; porta fechada e faróis apagados)
+    porta_motorista <= '0';
+    ignicao         <= '1';
+    farois          <= '0';
+    wait for 100 ns;
+    
+    -- 4) porta=0, ignicao=1, farois=1 -> buzzer esperado = 0 (ignição ligada e faróis acesos, porta fechada)
+    porta_motorista <= '0';
+    ignicao         <= '1';
+    farois          <= '1';
+    wait for 100 ns;
+    
+    -- 5) porta=1, ignicao=0, farois=0 -> buzzer esperado = 0 (porta aberta e ignição desligada)
+    porta_motorista <= '1';
+    ignicao         <= '0';
+    farois          <= '0';
+    wait for 100 ns;
+    
+    -- 6) porta=1, ignicao=0, farois=1 -> buzzer esperado = 1 (faróis acesos e ignição desligada; porta aberta ou fechada)
+    porta_motorista <= '1';
+    ignicao         <= '0';
+    farois          <= '1';
+    wait for 100 ns;
+    
+    -- 7) porta=1, ignicao=1, farois=0 -> buzzer esperado = 1 (porta aberta e ignição ligada)
+    porta_motorista <= '1';
+    ignicao         <= '1';
+    farois          <= '0';
+    wait for 100 ns;
+    
+    -- 8) porta=1, ignicao=1, farois=1 -> buzzer esperado = 1 (porta aberta e ignição ligada; faróis acesos não alteram)
+    porta_motorista <= '1';
+    ignicao         <= '1';
+    farois          <= '1';
+    wait for 100 ns;
+    
+    -- Fim da simulação (encerra o processo de estímulos)
+    wait;
+  end process;
+end architecture;
