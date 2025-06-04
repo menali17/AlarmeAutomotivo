@@ -1,0 +1,24 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Entidade do alarme automotivo
+entity AlarmeAutomotivo is
+  Port (
+    porta_motorista : in  STD_LOGIC;  -- 1 = porta aberta, 0 = fechada
+    ignicao         : in  STD_LOGIC;  -- 1 = ignição ligada, 0 = desligada
+    farois          : in  STD_LOGIC;  -- 1 = faróis acesos, 0 = apagados
+    buzzer          : out STD_LOGIC   -- 1 = ativa buzzer, 0 = desligado
+  );
+end AlarmeAutomotivo;
+
+-- Arquitetura com lógica combinacional (sem uso de clock)
+architecture Combinacional of AlarmeAutomotivo is
+begin
+  -- Ativa o buzzer (alarme sonoro) quando:
+  -- (i)  faróis acesos (1) E ignição desligada (0),
+  -- OU
+  -- (ii) porta do motorista aberta (1) E ignição ligada (1).
+  buzzer <= '1' when ((farois = '1' and ignicao = '0') or 
+                      (porta_motorista = '1' and ignicao = '1'))
+           else '0';
+end Combinacional;
