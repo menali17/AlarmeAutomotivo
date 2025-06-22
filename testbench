@@ -1,80 +1,68 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Testbench do componente AlarmeAutomotivo
-entity tb_AlarmeAutomotivo is
-end tb_AlarmeAutomotivo;
+entity tb_alarme is
+end tb_alarme;
 
-architecture Teste of tb_AlarmeAutomotivo is
-  -- Sinais internos para estimular entradas e monitorar saída
-  signal porta_motorista : STD_LOGIC := '0';
-  signal ignicao         : STD_LOGIC := '0';
-  signal farois          : STD_LOGIC := '0';
-  signal buzzer          : STD_LOGIC;
+architecture behavior of tb_alarme is
+
+    -- Componente a ser testado
+    component alarme
+        Port (
+            porta     : in STD_LOGIC;
+            ignicao   : in STD_LOGIC;
+            farol     : in STD_LOGIC;
+            alarmeSom : out STD_LOGIC
+        );
+    end component;
+
+    -- Sinais para conectar ao DUT
+    signal porta, ignicao, farol : STD_LOGIC := '1';  -- Inicializa em nível alto (estado inativo)
+    signal alarmeSom : STD_LOGIC;
+
 begin
-  -- Instanciação da UUT (Unidade Sob Teste)
-  UUT: entity work.AlarmeAutomotivo(Combinacional)
-    port map (
-      porta_motorista => porta_motorista,
-      ignicao         => ignicao,
-      farois          => farois,
-      buzzer          => buzzer
-    );
 
-  -- Processo de estímulos de teste
-  stim_proc: process
-  begin
-    -- Cada combinação de entrada será mantida por 100 ns:
-    
-    -- 1) porta=0, ignicao=0, farois=0 -> buzzer esperado = 0 (nenhuma condição ativada)
-    porta_motorista <= '0';
-    ignicao         <= '0';
-    farois          <= '0';
-    wait for 100 ns;
-    
-    -- 2) porta=0, ignicao=0, farois=1 -> buzzer esperado = 1 (faróis acesos e ignição desligada)
-    porta_motorista <= '0';
-    ignicao         <= '0';
-    farois          <= '1';
-    wait for 100 ns;
-    
-    -- 3) porta=0, ignicao=1, farois=0 -> buzzer esperado = 0 (ignição ligada; porta fechada e faróis apagados)
-    porta_motorista <= '0';
-    ignicao         <= '1';
-    farois          <= '0';
-    wait for 100 ns;
-    
-    -- 4) porta=0, ignicao=1, farois=1 -> buzzer esperado = 0 (ignição ligada e faróis acesos, porta fechada)
-    porta_motorista <= '0';
-    ignicao         <= '1';
-    farois          <= '1';
-    wait for 100 ns;
-    
-    -- 5) porta=1, ignicao=0, farois=0 -> buzzer esperado = 0 (porta aberta e ignição desligada)
-    porta_motorista <= '1';
-    ignicao         <= '0';
-    farois          <= '0';
-    wait for 100 ns;
-    
-    -- 6) porta=1, ignicao=0, farois=1 -> buzzer esperado = 1 (faróis acesos e ignição desligada; porta aberta ou fechada)
-    porta_motorista <= '1';
-    ignicao         <= '0';
-    farois          <= '1';
-    wait for 100 ns;
-    
-    -- 7) porta=1, ignicao=1, farois=0 -> buzzer esperado = 1 (porta aberta e ignição ligada)
-    porta_motorista <= '1';
-    ignicao         <= '1';
-    farois          <= '0';
-    wait for 100 ns;
-    
-    -- 8) porta=1, ignicao=1, farois=1 -> buzzer esperado = 1 (porta aberta e ignição ligada; faróis acesos não alteram)
-    porta_motorista <= '1';
-    ignicao         <= '1';
-    farois          <= '1';
-    wait for 100 ns;
-    
-    -- Fim da simulação (encerra o processo de estímulos)
-    wait;
-  end process;
-end architecture;
+    -- Instância do dispositivo sob teste (DUT)
+    uut: alarme
+        port map (
+            porta => porta,
+            ignicao => ignicao,
+            farol => farol,
+            alarmeSom => alarmeSom
+        );
+
+    -- Processo de estímulo
+    stim_proc: process
+    begin
+        -- Estado inicial: tudo desligado
+        porta <= '1'; ignicao <= '1'; farol <= '1';
+        wait for 10 ns;
+
+        -- Condição 1: Farol ligado + ignição desligada → Alarme deve ligar
+        farol <= '0'; ignicao <= '1'; porta <= '1';
+        wait for 10 ns;
+
+        -- Condição 2: Porta aberta + ignição ligada → Alarme deve ligar
+        farol <= '1'; ignicao <= '0'; porta <= '0';
+        wait for 10 ns;
+
+        -- Condição 3: Porta aberta + ignição desligada → Sem alarme
+        farol <= '1'; ignicao <= '1'; porta <= '0';
+        wait for 10 ns;
+
+        -- Condição 4: Farol ligado + ignição ligada → Sem alarme
+        farol <= '0'; ignicao <= '0'; porta <= '1';
+        wait for 10 ns;
+
+        -- Condição 5: Todas as entradas ativas → Deve ter alarme
+        farol <= '0'; ignicao <= '0'; porta <= '0';
+        wait for 10 ns;
+
+        -- Estado final: tudo desligado
+        porta <= '1'; ignicao <= '1'; farol <= '1';
+        wait for 10 ns;
+
+        wait;
+    end process;
+
+end behavior;
