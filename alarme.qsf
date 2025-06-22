@@ -1,0 +1,14 @@
+
+# Entradas (Botões - Lógica Invertida na AX301)
+set_location_assignment PIN_M15 -to porta      # KEY1 - Porta do motorista
+set_location_assignment PIN_M16 -to ignicao    # KEY2 - Ignição
+set_location_assignment PIN_E16 -to farol      # KEY3 - Faróis
+
+# Saída (Buzzer)
+set_location_assignment PIN_C11 -to alarmeSom  # Buzzer
+
+# IO Standard
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to porta
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to ignicao
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to farol
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to alarmeSom
