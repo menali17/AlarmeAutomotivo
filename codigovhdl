@@ -1,27 +1,25 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Entidade do alarme automotivo
-entity alarme_carro is
-  Port (
-    porta_motorista : in  STD_LOGIC;  -- 1 = porta aberta, 0 = fechada
-    ignicao         : in  STD_LOGIC;  -- 1 = ignição ligada, 0 = desligada
-    farois          : in  STD_LOGIC;  -- 1 = faróis acesos, 0 = apagados
-    buzzer          : out STD_LOGIC   -- 1 = ativa buzzer, 0 = desligado
-  );
-end alarme_carro;
+entity alarme is
+    Port (
+        porta     : in STD_LOGIC;  -- Entrada da porta do motorista (ativa em nível baixo)
+        ignicao   : in STD_LOGIC;  -- Entrada da ignição (ativa em nível baixo)
+        farol     : in STD_LOGIC;  -- Entrada dos faróis (ativa em nível baixo)
+        alarmeSom : out STD_LOGIC  -- Saída do alarme
+    );
+end alarme;
 
--- Arquitetura com lógica combinacional (sem uso de clock)
-architecture Behavioral of alarme_carro is
-   signal porta_inv, ignicao_inv, farol_inv : STD_LOGIC;
+architecture Behavioral of alarme is
 begin
-   
-	 porta_inv <= NOT porta_motorista;
-	 ignicao_inv <=  NOT ignicao;
-	 farol_inv <= NOT farois;
-	 
-	 
-	 buzzer <= NOT ((farol_inv AND NOT (ignicao_inv)) or (porta_inv AND ignicao_inv));
-	
-
+    process(porta, ignicao, farol)
+    begin
+        -- Condição 1: Farol ligado (not farol) e ignição desligada (ignicao)
+        -- Condição 2: Porta aberta (not porta) e ignição ligada (not ignicao)
+        if ((not farol and ignicao = '1') or (not porta and not ignicao)) then
+            alarmeSom <= '1';
+        else
+            alarmeSom <= '0';
+        end if;
+    end process;
 end Behavioral;
