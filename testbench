@@ -1,68 +1,62 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity tb_alarme is
-end tb_alarme;
+entity tb_alarme_automotivo is
+end tb_alarme_automotivo;
 
-architecture behavior of tb_alarme is
+architecture Testbench of tb_alarme_automotivo is
 
-    -- Componente a ser testado
-    component alarme
-        Port (
-            porta     : in STD_LOGIC;
-            ignicao   : in STD_LOGIC;
-            farol     : in STD_LOGIC;
-            alarmeSom : out STD_LOGIC
-        );
-    end component;
-
-    -- Sinais para conectar ao DUT
-    signal porta, ignicao, farol : STD_LOGIC := '1';  -- Inicializa em nível alto (estado inativo)
+    -- Sinais de estímulo
+    signal porta     : STD_LOGIC := '1';  -- Inicialmente fechada (nível alto)
+    signal ignicao   : STD_LOGIC := '1';  -- Inicialmente desligada (nível alto)
+    signal farol     : STD_LOGIC := '1';  -- Inicialmente desligado (nível alto)
     signal alarmeSom : STD_LOGIC;
 
 begin
 
-    -- Instância do dispositivo sob teste (DUT)
-    uut: alarme
+    -- Instância do DUT
+    DUT: entity work.alarme_automotivo
         port map (
-            porta => porta,
-            ignicao => ignicao,
-            farol => farol,
+            porta     => porta,
+            ignicao   => ignicao,
+            farol     => farol,
             alarmeSom => alarmeSom
         );
 
-    -- Processo de estímulo
+    -- Processo de estímulos: cada teste representa uma situação física real
     stim_proc: process
     begin
-        -- Estado inicial: tudo desligado
-        porta <= '1'; ignicao <= '1'; farol <= '1';
+        -- Teste 1: Farol ligado e ignição desligada => Deve disparar alarme
+        porta   <= '1';  -- Porta fechada
+        ignicao <= '1';  -- Ignicao desligada
+        farol   <= '0';  -- Farol ligado
         wait for 10 ns;
 
-        -- Condição 1: Farol ligado + ignição desligada → Alarme deve ligar
-        farol <= '0'; ignicao <= '1'; porta <= '1';
+        -- Teste 2: Porta aberta e ignição ligada => Deve disparar alarme
+        porta   <= '0';  -- Porta aberta
+        ignicao <= '0';  -- Ignição ligada
+        farol   <= '1';  -- Farol desligado
         wait for 10 ns;
 
-        -- Condição 2: Porta aberta + ignição ligada → Alarme deve ligar
-        farol <= '1'; ignicao <= '0'; porta <= '0';
+        -- Teste 3: Porta fechada e ignição desligada e farol desligado => Não deve ter alarme
+        porta   <= '1';  -- Porta fechada
+        ignicao <= '1';  -- Ignição desligada
+        farol   <= '1';  -- Farol desligado
         wait for 10 ns;
 
-        -- Condição 3: Porta aberta + ignição desligada → Sem alarme
-        farol <= '1'; ignicao <= '1'; porta <= '0';
+        -- Teste 4: Porta aberta e ignição desligada e farol desligado => Não deve ter alarme
+        porta   <= '0';  -- Porta aberta
+        ignicao <= '1';  -- Ignição desligada
+        farol   <= '1';  -- Farol desligado
         wait for 10 ns;
 
-        -- Condição 4: Farol ligado + ignição ligada → Sem alarme
-        farol <= '0'; ignicao <= '0'; porta <= '1';
-        wait for 10 ns;
-
-        -- Condição 5: Todas as entradas ativas → Deve ter alarme
-        farol <= '0'; ignicao <= '0'; porta <= '0';
-        wait for 10 ns;
-
-        -- Estado final: tudo desligado
-        porta <= '1'; ignicao <= '1'; farol <= '1';
+        -- Teste 5: Porta fechada e ignição ligada e farol ligado => Não deve ter alarme
+        porta   <= '1';
+        ignicao <= '0';
+        farol   <= '0';
         wait for 10 ns;
 
         wait;
     end process;
 
-end behavior;
+end Testbench;
