@@ -1,24 +1,22 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity alarme is
+entity alarme_automotivo is
     Port (
         porta     : in STD_LOGIC;  -- Entrada da porta do motorista (ativa em nível baixo)
         ignicao   : in STD_LOGIC;  -- Entrada da ignição (ativa em nível baixo)
         farol     : in STD_LOGIC;  -- Entrada dos faróis (ativa em nível baixo)
         alarmeSom : out STD_LOGIC  -- Saída do alarme
     );
-end alarme;
+end alarme_automotivo;
 
-architecture Behavioral of alarme is
+architecture Behavioral of alarme_automotivo is
 begin
     process(porta, ignicao, farol)
     begin
-        -- Condição 1: Farol ligado (not farol) e ignição desligada (ignicao)
-        -- Condição 2: Porta aberta (not porta) e ignição ligada (not ignicao)
-        if ((not farol and ignicao = '1') or (not porta and not ignicao)) then
+        if (porta = '1' and ignicao = '1') or (farol = '1' and ignicao = '0') then
             alarmeSom <= '1';
-        else
+        else 
             alarmeSom <= '0';
         end if;
     end process;
